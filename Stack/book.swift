@@ -50,7 +50,30 @@ class Books{
     }
     
     public func search(withText text:String, _ completion: @escaping ()->())throws{
-        completion()
+        print("Hello")
+        let jsonUrl = "https://www.googleapis.com/books/v1/volumes?maxResults=40&fields=items(id,volumeInfo(title,authors,publishedDate))&q=\(text)"
+        let session = URLSession.shared
+        guard let booksURL = NSURL(string:jsonUrl)else{
+            throw JSONError.InvalidURL(jsonUrl)
+        }
+        session.dataTask(with: booksURL as URL, completionHandler: {(data, response, error) -> Void in
+            do{
+                print("Hello 2")
+                let json = try JSONSerialization.jsonObject(with: data!) as! [String: Any]
+                print(json)
+                guard let items = json["items"] as! [[String: Any]]? else{
+                    throw JSONError.InvalidKey("items")
+                }
+                for item in items{
+                    print(item)
+                }
+            }catch{
+                print("error thrown \(error)")
+            }
+                completion()
+            
+        }).resume()
+        //completion()
         
     }
     

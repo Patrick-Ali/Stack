@@ -8,18 +8,40 @@
 
 import UIKit
 
-class stackController: UITableViewController {
+class stackController: UITableViewController, UISearchBarDelegate {
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var test:[String] = ["Test1", "Test2"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.searchBar.delegate = self
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String){
+            print("search \(searchText)")
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let search = searchBar.text{
+            print("search button clicked \(search)")
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            try? Books.sharedInstance.search(withText: search, {() in
+                print("Search completed")
+                DispatchQueue.main.async{
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                    self.tableView.reloadData()
+                    self.searchBar.resignFirstResponder()
+                }
+            })
+        }
     }
 
     override func didReceiveMemoryWarning() {
